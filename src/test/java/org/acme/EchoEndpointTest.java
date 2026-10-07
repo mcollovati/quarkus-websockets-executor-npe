@@ -21,18 +21,30 @@ import io.quarkus.test.junit.QuarkusTest;
 class EchoEndpointTest {
 
     @TestHTTPResource("/echo")
-    URI uri;
+    URI annotatedUri;
+
+    @TestHTTPResource(ProgrammaticEchoEndpoint.PATH)
+    URI programmaticUri;
 
     @Test
     void annotatedEndpointCallbacksRun() throws Exception {
+        assertEchoWorks(annotatedUri);
+    }
+
+    @Test
+    void programmaticEndpointCallbacksRun() throws Exception {
+        assertEchoWorks(programmaticUri);
+    }
+
+    private static void assertEchoWorks(URI uri) throws Exception {
         Client client = new Client();
         try (Session session = ContainerProvider.getWebSocketContainer()
                 .connectToServer(client, uri)) {
             assertEquals("CONNECT", client.next());
-            // Sent from the server's @OnOpen
+            // Sent from the server's open callback
             assertEquals("welcome", client.next());
             session.getBasicRemote().sendText("hello");
-            // Sent from the server's @OnMessage
+            // Sent from the server's message handler
             assertEquals("echo: hello", client.next());
         }
     }
