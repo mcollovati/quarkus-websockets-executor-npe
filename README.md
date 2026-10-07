@@ -9,8 +9,17 @@ The project has only the `quarkus-websockets` extension, one
 that connects to it. `application.properties` sets
 `quarkus.websocket.dispatch-to-worker=true`.
 
-    mvn verify                             # main (999-SNAPSHOT): fails
-    mvn verify -Dquarkus.version=3.33.0    # passes
+The `999-SNAPSHOT` of Quarkus main is not in a Maven repository. Install
+the latest daily snapshot into `~/.m2/repository` first (this needs the
+GitHub CLI, `gh`):
+
+    curl -sL https://raw.githubusercontent.com/quarkusio/quarkus-ecosystem-ci/main/setup-quarkus | bash
+
+Then run the tests. `-nsu` keeps Maven from looking for the snapshot in
+remote repositories:
+
+    mvn -nsu clean verify                           # main (999-SNAPSHOT): fails
+    mvn -nsu clean verify -Dquarkus.version=3.33.0  # passes
 
 On main, `EchoEndpointTest` fails with
 `expected: <welcome> but was: <null>`, and the server logs:
